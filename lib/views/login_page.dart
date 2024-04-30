@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart'; // Importer la bibliothèque Google Sign-In
@@ -53,18 +52,16 @@ class _LoginPageState extends State<LoginPage> {
       );
     }
   }
-Future facebookLogin() async {
-  final result =
-      await FacebookAuth.i.login(permissions: ['public_profile', 'email']);
-  if (result.status == LoginStatus.success) {
-    final userData = await FacebookAuth.i.getUserData();
-    return userData;
+
+  Future facebookLogin() async {
+    final result =
+        await FacebookAuth.i.login(permissions: ['public_profile', 'email']);
+    if (result.status == LoginStatus.success) {
+      final userData = await FacebookAuth.i.getUserData();
+      return userData;
+    }
+    return null;
   }
-  return null;
-}
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -120,14 +117,19 @@ Future facebookLogin() async {
                           .loginWithEmail(
                               _emailController.text, _passwordController.text)
                           .then((value) {
-                        if (value == "Connexion réussie") {
+                            
+                        print(value["status"]);
+                        if (value["status"] == "Login Successful") {
                           ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text("Connexion réussie")));
+
+                          print("User type: ${value["userType"]}");
+
                           Navigator.pushReplacementNamed(context, "/passager");
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text(
-                              value,
+                              value["status"],
                               style: TextStyle(color: Colors.white),
                             ),
                             backgroundColor: Colors.red.shade400,
@@ -174,7 +176,7 @@ Future facebookLogin() async {
                 width: MediaQuery.of(context).size.width * .9,
                 child: OutlinedButton(
                   onPressed: () {
-                     facebookLogin();
+                    facebookLogin();
                   },
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
