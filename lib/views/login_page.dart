@@ -117,7 +117,7 @@ class _LoginPageState extends State<LoginPage> {
                           .loginWithEmail(
                               _emailController.text, _passwordController.text)
                           .then((value) {
-                            
+
                         print(value["status"]);
                         if (value["status"] == "Login Successful") {
                           ScaffoldMessenger.of(context).showSnackBar(
@@ -125,7 +125,16 @@ class _LoginPageState extends State<LoginPage> {
 
                           print("User type: ${value["userType"]}");
 
-                          Navigator.pushReplacementNamed(context, "/passager");
+                          // Naviguation en fonction du type d'utilisateur 
+
+                          if (value["userType"] == "Passenger") {
+                            Navigator.pushReplacementNamed(
+                                context, '/passager');
+                          } else if (value["userType"] == "Driver") {
+                            Navigator.pushReplacementNamed(
+                                context, '/conducteur');
+                          }
+
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                             content: Text(
