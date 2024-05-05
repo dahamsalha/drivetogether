@@ -4,8 +4,12 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
   String? userType;
+<<<<<<< HEAD
   String? userName;
   String? userLastName;
+=======
+ 
+>>>>>>> 806ca18d0c280a29c912ef85fa3f4a6f93b54172
 
   // create new account using email password method
   Future<String> createAccountWithEmail(String email, String password) async {
@@ -19,8 +23,12 @@ class AuthService {
   }
 
   // login with email password method
+<<<<<<< HEAD
   Future<Map<String, dynamic>> loginWithEmail(
       String email, String password) async {
+=======
+  Future<Map<String, dynamic>> loginWithEmail(String email, String password) async {
+>>>>>>> 806ca18d0c280a29c912ef85fa3f4a6f93b54172
     try {
       await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
@@ -73,6 +81,7 @@ class AuthService {
       return e.message.toString();
     }
   }
+<<<<<<< HEAD
 
   Future<void> fetchUserName() async {
     try {
@@ -91,4 +100,6 @@ class AuthService {
       print('Erreur lors de la récupération du nom d\'utilisateur: $e');
     }
   }
+=======
+>>>>>>> 806ca18d0c280a29c912ef85fa3f4a6f93b54172
 }
