@@ -16,10 +16,10 @@ class _SignUpPageState extends State<SignUpPage> {
   TextEditingController _firstNameController = TextEditingController();
   TextEditingController _lastNameController = TextEditingController();
   TextEditingController _phoneNumberController = TextEditingController();
-  TextEditingController _genderController = TextEditingController();
-  TextEditingController _smokerController = TextEditingController();
-  TextEditingController _hasPetsController = TextEditingController();
-  TextEditingController _driverOrPassengerController = TextEditingController();
+  String _gender = "Homme";
+  String _smoker = "Non";
+  String _hasPets = "Non";
+  String _driverOrPassenger = "Passenger";
 
   Future<String> _signUp() async {
     try {
@@ -42,11 +42,10 @@ class _SignUpPageState extends State<SignUpPage> {
         'firstName': _firstNameController.text,
         'lastName': _lastNameController.text,
         'phoneNumber': _phoneNumberController.text,
-        'gender': _genderController.text,
-        'smoker': _smokerController.text,
-        'hasPets': _hasPetsController.text,
-        'driverOrPassenger': _driverOrPassengerController.text,
-        // Ajoutez d'autres champs au besoin
+        'gender': _gender,
+        'smoker': _smoker,
+        'hasPets': _hasPets,
+        'driverOrPassenger': _driverOrPassenger,
       });
 
       return "Account Created";
@@ -147,60 +146,120 @@ class _SignUpPageState extends State<SignUpPage> {
                   },
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _genderController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Gender (Female/Male)',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your gender';
-                    }
-                    return null;
-                  },
+                Text(
+                  'Genre',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: 'Homme',
+                      groupValue: _gender,
+                      onChanged: (value) {
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                    ),
+                    Text('Homme'),
+                    Radio<String>(
+                      value: 'Femme',
+                      groupValue: _gender,
+                      onChanged: (value) {
+                        setState(() {
+                          _gender = value!;
+                        });
+                      },
+                    ),
+                    Text('Femme'),
+                  ],
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _smokerController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Smoker (Yes/No)',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter if you are a smoker or not';
-                    }
-                    return null;
-                  },
+                Text(
+                  'Smoker ? ',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: 'Oui',
+                      groupValue: _smoker,
+                      onChanged: (value) {
+                        setState(() {
+                          _smoker = value!;
+                        });
+                      },
+                    ),
+                    Text('Oui'),
+                    Radio<String>(
+                      value: 'Non',
+                      groupValue: _smoker,
+                      onChanged: (value) {
+                        setState(() {
+                          _smoker = value!;
+                        });
+                      },
+                    ),
+                    Text('Non'),
+                  ],
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _hasPetsController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Has Pets (Yes/No)',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter if you have pets or not';
-                    }
-                    return null;
-                  },
+                Text(
+                  'Pets?',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: 'Oui',
+                      groupValue: _hasPets,
+                      onChanged: (value) {
+                        setState(() {
+                          _hasPets = value!;
+                        });
+                      },
+                    ),
+                    Text('Oui'),
+                    Radio<String>(
+                      value: 'Non',
+                      groupValue: _hasPets,
+                      onChanged: (value) {
+                        setState(() {
+                          _hasPets = value!;
+                        });
+                      },
+                    ),
+                    Text('Non'),
+                  ],
                 ),
                 SizedBox(height: 10),
-                TextFormField(
-                  controller: _driverOrPassengerController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Driver or Passenger',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter if you are a driver or a passenger';
-                    }
-                    return null;
-                  },
+                Text(
+                  'Driver or Passenger',
+                  style: TextStyle(fontSize: 16),
+                ),
+                Row(
+                  children: [
+                    Radio<String>(
+                      value: 'Passenger',
+                      groupValue: _driverOrPassenger,
+                      onChanged: (value) {
+                        setState(() {
+                          _driverOrPassenger = value!;
+                        });
+                      },
+                    ),
+                    Text('Passenger'),
+                    Radio<String>(
+                      value: 'Driver',
+                      groupValue: _driverOrPassenger,
+                      onChanged: (value) {
+                        setState(() {
+                          _driverOrPassenger = value!;
+                        });
+                      },
+                    ),
+                    Text('Driver'),
+                  ],
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
@@ -211,19 +270,20 @@ class _SignUpPageState extends State<SignUpPage> {
                           content: Text(result),
                         ));
                         if (result == "Account Created") {
-                          // Naviguer vers la page suivante en fonction du choix de l'utilisateur
-                          if (_driverOrPassengerController.text ==
-                              "Passenger") {
+                          print( 'result: $result');
+                          
+                          if (_driverOrPassenger == "Passenger") {
                             Navigator.pushReplacementNamed(
                                 context, '/passager');
-                          } else if (_driverOrPassengerController.text ==
-                              "Conducteur") {
+                          } else if (_driverOrPassenger == "Driver") {
                             Navigator.pushReplacementNamed(
                                 context, '/conducteur');
                           }
                         }
                       });
                     }
+                    print( 'userType: $_driverOrPassenger');
+                    
                   },
                   child: Text('Sign Up'),
                 ),

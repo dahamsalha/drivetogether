@@ -16,9 +16,13 @@ class _HomePageState extends State<HomePage> {
         children: [
           // Background image
           Image.asset(
-            'assets/images/logo.png',
-            fit: BoxFit.cover, // Cover the entire screen
-          ),
+      
+            'assets/images/drivetogether1.jpg',
+
+           
+            width: 90, // Utilise la largeur de l'écran
+  height: 90,
+          ), // Hauteur fixée à 150 pixels
           // Content below the background image
           Positioned(
             left: 0,

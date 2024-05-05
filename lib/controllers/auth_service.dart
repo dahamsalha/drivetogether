@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
+  String? userType;
+  String? userName;
+  String? userLastName;
+
   // create new account using email password method
   Future<String> createAccountWithEmail(String email, String password) async {
     try {
@@ -14,14 +19,23 @@ class AuthService {
   }
 
   // login with email password method
-  Future<String> loginWithEmail(String email, String password) async {
+  Future<Map<String, dynamic>> loginWithEmail(
+      String email, String password) async {
     try {
-      await FirebaseAuth.
-      instance
+      await FirebaseAuth.instance
           .signInWithEmailAndPassword(email: email, password: password);
-      return "Login Successful";
+
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      String userType = userSnapshot.get('driverOrPassenger');
+      this.userType = userType;
+
+      return {"status": "Login Successful", "userType": userType};
     } on FirebaseAuthException catch (e) {
-      return e.message.toString();
+      return {"status": e.message.toString(), "userType": null};
     }
   }
 
@@ -57,6 +71,24 @@ class AuthService {
       return "Google Login Successful";
     } on FirebaseAuthException catch (e) {
       return e.message.toString();
+    }
+  }
+
+  Future<void> fetchUserName() async {
+    try {
+      String userId = FirebaseAuth.instance.currentUser!.uid;
+      DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+      String name = userSnapshot.get('firstName');
+      String lastName =
+          userSnapshot.get('lastName'); // Récupération du nom de famille
+      userName = name;
+      userLastName = lastName;
+      userName = name;
+    } catch (e) {
+      print('Erreur lors de la récupération du nom d\'utilisateur: $e');
     }
   }
 }

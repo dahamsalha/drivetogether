@@ -398,9 +398,13 @@ class _MapScreenState extends State<MapScreen> {
 
     LatLng center = LatLng(latitude, longitude);
 
+    // Perform reverse geocoding
+    //var googleGeocoding = GoogleGeocoding("AIzaSyC-OTIP0wqfut_dspRVK-Uam_enFG6q-PE");
+   // var result = await googleGeocoding.geocoding.getReverse(center);
+
     // Pass the selected location back to the previous screen
     Navigator.pop(context, center);
-  }
+}
 }
 
 void main() {
