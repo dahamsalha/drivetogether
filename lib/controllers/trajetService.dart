@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_maps_flutter_platform_interface/src/types/location.dart';
 
 class TrajetService {
   final CollectionReference trajetCollection =
@@ -16,13 +17,13 @@ class TrajetService {
   }) async {
     try {
       await trajetCollection.add({
-         'Depart': depart,
+        'Depart': depart,
         'Arrivee': arrivee,
         'Date de depart': date,
         'Heure': heure,
         'Nombre de places': nbPlaces,
         'Prix': prix,
-        'message':message,
+        'message': message,
         // Vous pouvez ajouter d'autres champs du trajet ici
       });
       print('Trajet ajouté avec succès.');
@@ -39,6 +40,31 @@ class TrajetService {
           .toList();
     } catch (e) {
       print('Erreur lors de la récupération des trajets: $e');
+      return [];
+    }
+  }
+
+  // Méthode pour rechercher des trajets dans Firestore
+  Future<List<Map<String, dynamic>>> searchTrajets({
+    required String depart,
+    required String arrivee,
+    required String date,
+ LatLng? selectedArrivalLocation,
+ LatLng? selectedDepartureLocation, 
+required DateTime selectedDateTime,
+  }) async {
+    try {
+      QuerySnapshot querySnapshot = await trajetCollection
+          .where('Depart', isEqualTo: depart)
+          .where('Arrivee', isEqualTo: arrivee)
+          .where('Date de depart', isEqualTo: date)
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => doc.data() as Map<String, dynamic>)
+          .toList();
+    } catch (e) {
+      print('Erreur lors de la recherche des trajets: $e');
       return [];
     }
   }

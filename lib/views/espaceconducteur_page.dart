@@ -33,8 +33,12 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Espace Conducteur'),
-        backgroundColor: Colors.blue,
+       leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Image.asset('assets/images/drivetogether1.jpg'), // Chemin vers votre logo
+        ), 
+        title: Text(' Conducteur'),
+        backgroundColor: Color.fromARGB(255, 100, 177, 245),
         actions: [
           IconButton(
             icon: Icon(Icons.notifications),
