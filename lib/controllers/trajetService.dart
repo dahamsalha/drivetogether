@@ -49,16 +49,18 @@ class TrajetService {
     required String depart,
     required String arrivee,
     required String date,
- LatLng? selectedArrivalLocation,
- LatLng? selectedDepartureLocation, 
-required DateTime selectedDateTime,
+    required DateTime selectedDateTime,
   }) async {
     try {
       QuerySnapshot querySnapshot = await trajetCollection
           .where('Depart', isEqualTo: depart)
-          .where('Arrivee', isEqualTo: arrivee)
-          .where('Date de depart', isEqualTo: date)
+          .where('Arrivee', isEqualTo: arrivee) 
+           .where('Depart', isEqualTo: selectedDateTime) 
           .get();
+          print('Depart: $depart , Arrivee:$arrivee');
+         
+          
+          
 
       return querySnapshot.docs
           .map((doc) => doc.data() as Map<String, dynamic>)
