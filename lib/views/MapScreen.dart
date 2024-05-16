@@ -9,38 +9,47 @@ class MapScreen extends StatefulWidget {
 
 class _MapScreenState extends State<MapScreen> {
   final Completer<GoogleMapController> _controller = Completer();
-  LatLng _selectedLocation = LatLng(0, 0);
+  LatLng _selectedLocation = LatLng(36.795247047643876, 10.189341981531538);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Choose Location'),
-      ),
-      body: GoogleMap(
-        mapType: MapType.normal,
-        initialCameraPosition: CameraPosition(
-          target: _selectedLocation,
-          zoom: 15,
+        appBar: AppBar(
+          title: Text('Choose Location'),
         ),
-        onMapCreated: (GoogleMapController controller) {
-          _controller.complete(controller);
-        },
-        onTap: _onMapTap,
-        markers: {
-          Marker(
-            markerId: MarkerId('selected-location'),
-            position: _selectedLocation,
-          ),
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _confirmLocation(context);
-        },
-        child: Icon(Icons.check),
-      ),
-    );
+        body: Stack(
+          children: [
+            GoogleMap(
+              mapType: MapType.normal,
+              initialCameraPosition: CameraPosition(
+                target: _selectedLocation,
+                zoom: 10,
+              ),
+              onMapCreated: (GoogleMapController controller) {
+                _controller.complete(controller);
+              },
+              onTap: _onMapTap,
+              markers: {
+                Marker(
+                  markerId: MarkerId('selected-location'),
+                  position: _selectedLocation,
+                ),
+              },
+            ),
+            Align(
+              alignment: Alignment.bottomLeft,
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    _confirmLocation(context);
+                  },
+                  child: Icon(Icons.check),
+                ),
+              ),
+            ),
+          ],
+        ));
   }
 
   void _onMapTap(LatLng location) {

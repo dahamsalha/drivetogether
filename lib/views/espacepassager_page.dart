@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart'; // Import your TrajetDetails screen
 
+import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
+
 class PassengerDashboard extends StatefulWidget {
   @override
   _PassengerDashboardState createState() => _PassengerDashboardState();
@@ -98,7 +101,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
             SizedBox(width: 10),
             Text(
               _selectedDepartureLocation != null
-                  ? 'Departure Location Selected'
+                  ? _departurePlaceName
                   : 'Select Departure Location',
             ),
           ],
@@ -122,7 +125,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
             SizedBox(width: 10),
             Text(
               _selectedArrivalLocation != null
-                  ? 'Arrival Location Selected'
+                  ? _arrivalPlaceName
                   : 'Select Arrival Location',
             ),
           ],
@@ -133,14 +136,12 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
 
   void _search() async {
     // Perform search based on selected date, time, departure, and destination
-    final List<Map<String, dynamic>> searchResults =
-        await _trajetService.searchTrajets(
-      selectedDepartureLocation: _selectedDepartureLocation,
-      selectedArrivalLocation: _selectedArrivalLocation,
+    final List<Map<String, dynamic>> searchResults = await _trajetService.searchTrajets(
       selectedDateTime: _selectedDateTime,
-      depart: '',
-      arrivee: '',
+      depart: _departurePlaceName,
+      arrivee: _arrivalPlaceName,
       date: '',
+
     );
 
     // Navigate to the search results page
@@ -151,6 +152,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       ),
     );
   }
+  
 
   Future<void> _selectDate() async {
     final DateTime? picked = await showDatePicker(
@@ -163,6 +165,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       setState(() {
         _selectedDateTime = picked;
       });
+      print(_selectedDateTime);
     }
   }
 
@@ -177,10 +180,25 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
           _selectedDateTime.year,
           _selectedDateTime.month,
           _selectedDateTime.day,
-          picked.hour,
-          picked.minute,
         );
       });
+    }
+  }
+
+  String _departurePlaceName = 'Select departure location';
+  String _arrivalPlaceName = 'Select arrival location';
+
+ Future<String> getPlaceName(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
+        return place.administrativeArea ?? 'Unknown state';
+      } else {
+        return 'Unknown state';
+      }
+    } catch (e) {
+      return 'Failed to get state name';
     }
   }
 
@@ -193,6 +211,15 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       setState(() {
         _selectedDepartureLocation = selectedLocation;
       });
+      try {
+        String placeName = await getPlaceName(selectedLocation.latitude, selectedLocation.longitude);
+        setState(() {
+          _departurePlaceName = placeName;
+        });
+      } catch (e) {
+        print('Failed to get place name: $e');
+      }
+      print(_departurePlaceName);
     }
   }
 
@@ -205,7 +232,16 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       setState(() {
         _selectedArrivalLocation = selectedLocation;
       });
+      try {
+        String placeName = await getPlaceName(selectedLocation.latitude, selectedLocation.longitude);
+        setState(() {
+          _arrivalPlaceName = placeName;
+        });
+      } catch (e) {
+        print('Failed to get place name: $e');
+      }
     }
+    print(_arrivalPlaceName);
   }
 }
 
@@ -241,10 +277,4 @@ class TrajetSearchResults extends StatelessWidget {
       ),
     );
   }
-}
-
-void main() {
-  runApp(MaterialApp(
-    home: PassengerDashboard(),
-  ));
 }
