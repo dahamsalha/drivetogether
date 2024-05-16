@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -35,6 +36,48 @@ class _trajetScreenState extends State<trajetScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+
+  final CollectionReference trajetCollection = FirebaseFirestore.instance.collection('trajet');
+  
+  Future<void> _enregistrerTrajet(Map<String, dynamic> data) async {
+    try {
+      bool allerRetour = data['aller_retour'] ?? false;
+      double cotisation = double.tryParse(data['cotisation'].toString()) ?? 0.0;
+      String date = data['date']?.toString() ?? '';
+      String destination = data['destination']?.toString() ?? '';
+      String heure = data['heure']?.toString() ?? '';
+      String pointDepart = data['point_depart']?.toString() ?? '';
+      String typeTrajet = data['type_trajet']?.toString() ?? '';
+
+      
+
+      Map<String, dynamic> trajetData = {
+        'aller_retour': allerRetour,
+        'cotisation': cotisation,
+        'date': date,
+        'destination': destination,
+        'heure': heure,
+        'point_depart': pointDepart,
+        'type_trajet': typeTrajet,
+      };
+
+      print('Trajet Data: $trajetData');
+      await trajetCollection.add(trajetData);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Trajet proposé avec succès'),
+        ),
+      );
+    } catch (e) {
+      print("Erreur Firestore: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Une erreur s\'est produite lors de l\'enregistrement du trajet: $e'),
+        ),
+      );
+    }
+  }
   @override
   void initState() {
     super.initState();
@@ -162,17 +205,20 @@ class _trajetScreenState extends State<trajetScreen>
                       },
                     ),
                     ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState!.validate()) {
-                      _formKey.currentState!.save();
-                      await _trajetService.enregistrerTrajet(_formKey.currentState!.value);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Trajet enregistré avec succès')),
-                      );
-                    }
-                  },
-                  child: Text('Proposer'),
-                ),
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          _formKey.currentState!.save();
+                          await
+                              _enregistrerTrajet(_formKey.currentState!.value);
+                          print(_formKey.currentState!.value);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text('Trajet enregistré avec succès')),
+                          );
+                        }
+                      },
+                      child: Text('Proposer'),
+                    ),
                     SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {

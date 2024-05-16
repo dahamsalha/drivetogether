@@ -75,7 +75,7 @@ class TrajetService {
   Future<void> proposerTrajet(Map<String, dynamic> trajetData) async {
     try {
       await trajetCollection.add(trajetData);
-      print('Trajet proposé avec succès.');
+      print('Trajet proposé avec succès................');
     } catch (e) {
       print('Erreur lors de la proposition du trajet: $e');
     }

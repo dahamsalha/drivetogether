@@ -13,37 +13,37 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
   bool _allerRetour = false;
   double _cotisation = 0;
 
-  Future<void> _enregistrerTrajet(Map<String, dynamic> data) async {
-  try {
-    Map<String, dynamic> trajetData = {
-      'aller_retour': data['aller_retour'] as bool,
-      'cotisation': double.parse(data['cotisation'].toString()),
-      'date': data['date'] as String,
-      'destination': data['destination'] as String,
-      'heure': data['heure'] as String,
-      'place de disponible': int.parse(data['nb_places'].toString()),
-      'point_depart': data['point_depart'] as String,
-      'type_trajet': data['type_trajet'] as String,
-    };
+  final CollectionReference trajetCollection =
+      FirebaseFirestore.instance.collection('trajet');
+  Future<void> _enregistrerTrajet(data) async {
+    try {
+      Map<String, dynamic> trajetData = {
+        'aller_retour': data['aller_retour'] as bool,
+        'cotisation': double.parse(data['cotisation'].toString()),
+        'date': data['date'] as String,
+        'destination': data['destination'] as String,
+        'heure': data['heure'] as String,
+        'place de disponible': int.parse(data['nb_places'].toString()),
+        'point_depart': data['point_depart'] as String,
+        'type_trajet': data['type_trajet'] as String,
+      };
+      print('data');
+      print(trajetData);
+      await trajetCollection.add(trajetData);
 
-    await FirebaseFirestore.instance.collection('trajet').add(trajetData);
-     print(trajetData);
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Trajet proposé avec succès'),
-      ),
-    );
-  } catch (e) {
-    print("Erreur Firestore: $e");
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Une erreur s\'est produite lors de l\'enregistrement du trajet: $e'),
-      ),
-    );
-    print('Erreur lors de l\'enregistrement du trajet: $e');
+    
+      print('test');
+    } catch (e) {
+      print("Erreur Firestore: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+              'Une erreur s\'est produite lors de l\'enregistrement du trajet: $e'),
+        ),
+      );
+      print('Erreur lors de l\'enregistrement du trajet: $e');
+    }
   }
-}
-
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +66,8 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                     labelText: 'Sélectionnez un point de départ',
                     border: OutlineInputBorder(),
                   ),
-                  validator: FormBuilderValidators.required( errorText: 'Ce champ est obligatoire'),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Ce champ est obligatoire'),
                 ),
                 SizedBox(height: 16),
                 FormBuilderTextField(
@@ -75,7 +76,8 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                     labelText: 'Destination',
                     border: OutlineInputBorder(),
                   ),
-                  validator: FormBuilderValidators.required( errorText: 'Ce champ est obligatoire'),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Ce champ est obligatoire'),
                 ),
                 SizedBox(height: 16),
                 FormBuilderChoiceChip<String>(
@@ -93,7 +95,8 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                       child: Text('Trajet Simple'),
                     ),
                   ],
-                  validator: FormBuilderValidators.required( errorText: 'Ce champ est obligatoire'),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Ce champ est obligatoire'),
                 ),
                 SizedBox(height: 16),
                 FormBuilderDateTimePicker(
@@ -102,7 +105,8 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                     labelText: 'Sélectionnez la date',
                     border: OutlineInputBorder(),
                   ),
-                  validator: FormBuilderValidators.required( errorText: 'Ce champ est obligatoire'),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Ce champ est obligatoire'),
                 ),
                 SizedBox(height: 16),
                 FormBuilderDateTimePicker(
@@ -111,7 +115,8 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                     labelText: 'Sélectionnez l\'heure',
                     border: OutlineInputBorder(),
                   ),
-                  validator: FormBuilderValidators.required( errorText: 'Ce champ est obligatoire'),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Ce champ est obligatoire'),
                 ),
                 SizedBox(height: 16),
                 FormBuilderCheckbox(
@@ -132,7 +137,8 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                     border: OutlineInputBorder(),
                   ),
                   keyboardType: TextInputType.number,
-                  validator: FormBuilderValidators.required( errorText: 'Ce champ est obligatoire'),
+                  validator: FormBuilderValidators.required(
+                      errorText: 'Ce champ est obligatoire'),
                 ),
                 SizedBox(height: 16),
                 Text('Cotisation : ${_cotisation.toStringAsFixed(2)}DT'),
@@ -155,10 +161,12 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
                     formData['aller_retour'] = _allerRetour;
                     if (_formKey.currentState?.validate() ?? false) {
                       await _enregistrerTrajet(formData);
+                      print(formData);
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
-                          content: Text('Veuillez remplir tous les champs obligatoires'),
+                          content: Text(
+                              'Veuillez remplir tous les champs obligatoires'),
                         ),
                       );
                     }
