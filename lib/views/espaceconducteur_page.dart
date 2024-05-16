@@ -49,6 +49,33 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
     }
   }
 
+  void _showImageSource(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Wrap(
+        children: [
+          ListTile(
+            leading: Icon(Icons.photo_library),
+            title: Text('Gallery'),
+            onTap: () {
+              Navigator.of(context).pop();
+              _pickImageFromGallery();
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text('Camera'),
+            onTap: () {
+              Navigator.of(context).pop();
+              _pickImageFromCamera();
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+
   ImageProvider<Object>? _getImageProvider() {
     if (_imageFile != null) {
       return FileImage(_imageFile!);
@@ -127,7 +154,7 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
                   Row(
                     children: [
                       GestureDetector(
-                        onTap: _pickImageFromGallery,
+                        onTap: () =>_showImageSource(context),
                         child: CircleAvatar(
                           radius: 50,
                           backgroundImage: _getImageProvider(),
