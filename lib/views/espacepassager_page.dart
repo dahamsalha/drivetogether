@@ -22,6 +22,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Espace Passager : Recherche de trajets'),
+        backgroundColor: Colors.blueGrey,
       ),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(16.0),
@@ -33,6 +34,9 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
             ElevatedButton(
               onPressed: _search,
               child: Text('Rechercher'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
+              ),
             ),
           ],
         ),
@@ -62,10 +66,16 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
             ElevatedButton(
               onPressed: _selectDate,
               child: Text('Sélectionner une date'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
+              ),
             ),
             ElevatedButton(
               onPressed: _selectTime,
               child: Text('Sélectionner l\'heure'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
+              ),
             ),
           ],
         ),
@@ -209,6 +219,7 @@ class TrajetSearchResults extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Résultats de la recherche'),
+        backgroundColor: Colors.blueGrey,
       ),
       body: ListView.builder(
         itemCount: searchResults.length,

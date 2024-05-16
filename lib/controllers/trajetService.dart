@@ -68,4 +68,15 @@ required DateTime selectedDateTime,
       return [];
     }
   }
+
+  enregistrerTrajet(Map<String, dynamic> value) {}
+  Future<void> proposerTrajet(Map<String, dynamic> trajetData) async {
+    try {
+      await trajetCollection.add(trajetData);
+      print('Trajet proposé avec succès.');
+    } catch (e) {
+      print('Erreur lors de la proposition du trajet: $e');
+    }
+  }
 }
+

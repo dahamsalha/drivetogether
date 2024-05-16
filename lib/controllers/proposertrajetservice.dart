@@ -6,7 +6,7 @@ class ProposerTrajetService {
 
   Future<void> addTrajet({
     required String allerRetour,
-    required String conducteur,
+   
     required String cotisation,
     required String date,
     required String destination,
@@ -18,7 +18,7 @@ class ProposerTrajetService {
     try {
       await trajetCollection.add({
         'aller_retour': allerRetour,
-        'conducteur': conducteur,
+       
         'cotisation': cotisation,
         'date': date,
         'destination': destination,
@@ -48,4 +48,6 @@ class ProposerTrajetService {
   Future<DocumentSnapshot> getTrajetById(String id) {
     return trajetCollection.doc(id).get();
   }
+
+  getAllTrajets() {}
 }

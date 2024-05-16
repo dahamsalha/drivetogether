@@ -2,6 +2,7 @@ import 'package:drivetogether/views/espaceconducteur_page.dart';
 import 'package:drivetogether/views/espacepassager_page.dart';
 import 'package:drivetogether/views/home_page.dart';
 import 'package:drivetogether/views/login_page.dart';
+import 'package:drivetogether/views/profilUtilisateur_page.dart';
 import 'package:drivetogether/views/signup_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -53,6 +54,7 @@ class MyApp extends StatelessWidget {
         '/signup': (context) => const SignUpPage(),
         '/passager': (context) => PassengerDashboard(),
         '/conducteur': (context) => ConducteurDashboard(),
+        '/profile': (context) => ProfilePage(), // Route pour la page de profil
       },
     );
   }
