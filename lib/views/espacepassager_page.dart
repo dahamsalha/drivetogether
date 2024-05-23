@@ -1,11 +1,12 @@
-import 'package:drivetogether/views/MapScreen.dart';
-import 'package:drivetogether/views/trajet-page.dart';
-import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:drivetogether/controllers/auth_service.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart'; // Import your TrajetDetails screen
-
-import 'package:geocoding/geocoding.dart';
-import 'package:intl/intl.dart';
+import 'package:drivetogether/views/chat_page.dart';
+import 'package:drivetogether/views/cherchertrajet_page.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+import 'package:image_picker/image_picker.dart';
 
 class PassengerDashboard extends StatefulWidget {
   @override
@@ -13,138 +14,113 @@ class PassengerDashboard extends StatefulWidget {
 }
 
 class _PassengerDashboardState extends State<PassengerDashboard> {
+  final AuthService _authService = AuthService();
   final TrajetService _trajetService = TrajetService();
-  TextEditingController _departureController = TextEditingController();
-  TextEditingController _destinationController = TextEditingController();
-  DateTime _selectedDateTime = DateTime.now();
-  LatLng? _selectedDepartureLocation;
-  LatLng? _selectedArrivalLocation;
+  File? _imageFile;
+  final _picker = ImagePicker();
+  int _selectedIndex = 0;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Espace Passager : Recherche de trajets'),
-        backgroundColor: Colors.blueGrey,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            buildDestinationHeader(),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: _search,
-              child: Text('Rechercher'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
+  void initState() {
+    super.initState();
+    fetchUserData();
   }
 
-  Widget buildDestinationHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          'Champs de départ et d\'arrivée',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
+  void fetchUserData() async {
+    bool loggedIn = await _authService.isLoggedIn();
+    if (loggedIn) {
+      await _authService.fetchUserName();
+      setState(() {});
+    }
+  }
+
+  Future<void> _pickImageFromGallery() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() => _imageFile = File(pickedFile.path));
+    }
+  }
+
+  Future<void> _pickImageFromCamera() async {
+    final pickedFile = await _picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() => _imageFile = File(pickedFile.path));
+    }
+  }
+
+  void _showImageSource(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Wrap(
+        children: [
+          ListTile(
+            leading: Icon(Icons.photo_library),
+            title: Text('Gallery'),
+            onTap: () {
+              Navigator.of(context).pop();
+              _pickImageFromGallery();
+            },
           ),
-        ),
-        SizedBox(height: 10),
-        buildDepartureLocation(),
-        SizedBox(height: 10),
-        buildArrivalLocation(),
-        SizedBox(height: 10),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ElevatedButton(
-              onPressed: _selectDate,
-              child: Text('Sélectionner une date'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
-              ),
-            ),
-            ElevatedButton(
-              onPressed: _selectTime,
-              child: Text('Sélectionner l\'heure'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget buildDepartureLocation() {
-    return GestureDetector(
-      onTap: _selectDepartureLocation,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        padding: EdgeInsets.all(10.0),
-        child: Row(
-          children: [
-            Icon(Icons.location_on),
-            SizedBox(width: 10),
-            Text(
-              _selectedDepartureLocation != null
-                  ? _departurePlaceName
-                  : 'Select Departure Location',
-            ),
-          ],
-        ),
+          ListTile(
+            leading: Icon(Icons.camera_alt),
+            title: Text('Camera'),
+            onTap: () {
+              Navigator.of(context).pop();
+              _pickImageFromCamera();
+            },
+          ),
+        ],
       ),
     );
   }
 
-  Widget buildArrivalLocation() {
-    return GestureDetector(
-      onTap: _selectArrivalLocation,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
-          borderRadius: BorderRadius.circular(5.0),
-        ),
-        padding: EdgeInsets.all(10.0),
-        child: Row(
-          children: [
-            Icon(Icons.location_on),
-            SizedBox(width: 10),
-            Text(
-              _selectedArrivalLocation != null
-                  ? _arrivalPlaceName
-                  : 'Select Arrival Location',
-            ),
-          ],
-        ),
-      ),
-    );
+  ImageProvider<Object>? _getImageProvider() {
+    if (_imageFile != null) {
+      return FileImage(_imageFile!);
+    } else {
+      return AssetImage('assets/images/photo_library');
+    }
+  }
+
+  Future<void> _uploadProfileImage() async {
+    try {
+      String downloadUrl = await _uploadImageToStorage(_imageFile);
+      print('Image téléchargée avec succès : $downloadUrl');
+    } catch (error) {
+      print('Erreur lors du téléchargement de l\'image : $error');
+    }
+  }
+
+  Future<String> _uploadImageToStorage(File? imageXFile) async {
+    try {
+      String downloadUrl = "";
+      String fileName = DateTime.now().microsecondsSinceEpoch.toString();
+      fStorage.Reference storageRef = fStorage.FirebaseStorage.instance
+          .ref()
+          .child("ProfileImages")
+          .child(fileName);
+      fStorage.UploadTask uploadTask =
+          storageRef.putFile(File(imageXFile!.path));
+      fStorage.TaskSnapshot tasksnapshot =
+          await uploadTask.whenComplete(() => {});
+      await tasksnapshot.ref.getDownloadURL().then((urlImage) {
+        downloadUrl = urlImage;
+      });
+      return downloadUrl;
+    } catch (error) {
+      print('Erreur Firebase Storage : $error');
+      throw error;
+    }
   }
 
   void _search() async {
-    // Perform search based on selected date, time, departure, and destination
     final List<Map<String, dynamic>> searchResults = await _trajetService.searchTrajets(
-      selectedDateTime: _selectedDateTime,
-      depart: _departurePlaceName,
-      arrivee: _arrivalPlaceName,
+      selectedDateTime: DateTime.now(),
+      depart: '',
+      arrivee: '',
       date: '',
-
     );
 
-    // Navigate to the search results page
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -152,96 +128,168 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
       ),
     );
   }
-  
 
-  Future<void> _selectDate() async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: _selectedDateTime,
-      firstDate: DateTime.now(),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null && picked != _selectedDateTime) {
-      setState(() {
-        _selectedDateTime = picked;
-      });
-      print(_selectedDateTime);
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+    switch (index) {
+      case 0:
+        Navigator.pushNamed(context, '/home');
+        break;
+      case 1:
+        Navigator.pushNamed(context, '/profile');
+        break;
+      case 2:
+        Navigator.pushNamed(context, '/settings');
+        break;
     }
   }
 
-  Future<void> _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Passager'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.notifications),
+            onPressed: () {
+              // Logique des notifications
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.chat),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChatPage()),
+              );
+            },
+          ),
+        ],
+        backgroundColor: Colors.blueGrey,
+      ),
+      body: SingleChildScrollView(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              color: Colors.blue,
+              padding: EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => _showImageSource(context),
+                        child: CircleAvatar(
+                          radius: 50,
+                          backgroundImage: _getImageProvider(),
+                        ),
+                      ),
+                      SizedBox(width: 16),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${_authService.userName ?? ''} ${_authService.userLastName ?? ''}',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                          Text(
+                            'Je suis passager',
+                            style: TextStyle(
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pushNamed(context, '/profile');
+                    },
+                    child: Text('Modifier le profil'),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.blue, backgroundColor: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 16),
+            buildActionButtons(),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: const <BottomNavigationBarItem>[
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Settings',
+          ),
+        ],
+        currentIndex: _selectedIndex,
+        selectedItemColor: Colors.blueGrey,
+        onTap: _onItemTapped,
+      ),
     );
-    if (picked != null) {
-      setState(() {
-        _selectedDateTime = DateTime(
-          _selectedDateTime.year,
-          _selectedDateTime.month,
-          _selectedDateTime.day,
-        );
-      });
-    }
   }
 
-  String _departurePlaceName = 'Select departure location';
-  String _arrivalPlaceName = 'Select arrival location';
-
- Future<String> getPlaceName(double latitude, double longitude) async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        Placemark place = placemarks.first;
-        return place.administrativeArea ?? 'Unknown state';
-      } else {
-        return 'Unknown state';
-      }
-    } catch (e) {
-      return 'Failed to get state name';
-    }
-  }
-
-  void _selectDepartureLocation() async {
-    final LatLng? selectedLocation = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MapScreen()),
+  Widget buildActionButtons() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Actions disponibles',
+          style: TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: _search,
+          child: Text('Réserver'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.blueGrey,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            textStyle: TextStyle(fontSize: 16),
+          ),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChercherTrajetPage()),
+            );
+          },
+          child: Text('Proposer Trajet'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.white, backgroundColor: Colors.blueGrey,
+            padding: EdgeInsets.symmetric(vertical: 16),
+            textStyle: TextStyle(fontSize: 16),
+          ),
+        ),
+      ],
     );
-    if (selectedLocation != null) {
-      setState(() {
-        _selectedDepartureLocation = selectedLocation;
-      });
-      try {
-        String placeName = await getPlaceName(selectedLocation.latitude, selectedLocation.longitude);
-        setState(() {
-          _departurePlaceName = placeName;
-        });
-      } catch (e) {
-        print('Failed to get place name: $e');
-      }
-      print(_departurePlaceName);
-    }
-  }
-
-  void _selectArrivalLocation() async {
-    final LatLng? selectedLocation = await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => MapScreen()),
-    );
-    if (selectedLocation != null) {
-      setState(() {
-        _selectedArrivalLocation = selectedLocation;
-      });
-      try {
-        String placeName = await getPlaceName(selectedLocation.latitude, selectedLocation.longitude);
-        setState(() {
-          _arrivalPlaceName = placeName;
-        });
-      } catch (e) {
-        print('Failed to get place name: $e');
-      }
-    }
-    print(_arrivalPlaceName);
   }
 }
 
@@ -255,7 +303,7 @@ class TrajetSearchResults extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: Text('Résultats de la recherche'),
-        backgroundColor: Colors.blueGrey,
+        backgroundColor: const Color.fromARGB(255, 88, 148, 178),
       ),
       body: ListView.builder(
         itemCount: searchResults.length,
@@ -274,6 +322,40 @@ class TrajetSearchResults extends StatelessWidget {
             },
           );
         },
+      ),
+    );
+  }
+}
+
+class TrajetDetails extends StatelessWidget {
+  final Map<String, dynamic> trajet;
+
+  TrajetDetails({required this.trajet});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Détails du Trajet'),
+        backgroundColor: Colors.blueGrey,
+      ),
+      body: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Départ: ${trajet['Depart']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 10),
+            Text(
+              'Arrivée: ${trajet['Arrivee']}',
+              style: TextStyle(fontSize: 18),
+            ),
+            // Ajoutez plus de détails selon les informations de `trajet`
+          ],
+        ),
       ),
     );
   }

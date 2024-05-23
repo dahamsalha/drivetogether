@@ -11,15 +11,13 @@ class SignUpPage extends StatefulWidget {
 
 class _SignUpPageState extends State<SignUpPage> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  TextEditingController _emailController = TextEditingController();
-  TextEditingController _passwordController = TextEditingController();
-  TextEditingController _firstNameController = TextEditingController();
-  TextEditingController _lastNameController = TextEditingController();
-  TextEditingController _phoneNumberController = TextEditingController();
-  String _gender = "Homme";
-  String _smoker = "Non";
-  String _hasPets = "Non";
-  String _driverOrPassenger = "Passenger";
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _firstNameController = TextEditingController();
+  final TextEditingController _lastNameController = TextEditingController();
+  final TextEditingController _addressController = TextEditingController();
+  final TextEditingController _statusController = TextEditingController();
+  String _userType = "Passenger";
 
   Future<String> _signUp() async {
     try {
@@ -29,23 +27,20 @@ class _SignUpPageState extends State<SignUpPage> {
         password: _passwordController.text,
       );
 
-      // Mise à jour du profil de l'utilisateur avec les nouveaux champs
       await userCredential.user!.updateProfile(
           displayName:
               '${_firstNameController.text} ${_lastNameController.text}');
 
-      // Enregistrement des autres champs dans Firebase Firestore
       await FirebaseFirestore.instance
           .collection('users')
           .doc(userCredential.user!.uid)
           .set({
         'firstName': _firstNameController.text,
         'lastName': _lastNameController.text,
-        'phoneNumber': _phoneNumberController.text,
-        'gender': _gender,
-        'smoker': _smoker,
-        'hasPets': _hasPets,
-        'driverOrPassenger': _driverOrPassenger,
+        'email': _emailController.text,
+        'address': _addressController.text,
+        'status': _statusController.text,
+        'userType': _userType,
       });
 
       return "Account Created";
@@ -57,251 +52,123 @@ class _SignUpPageState extends State<SignUpPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Sign Up'),
-      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Sign Up",
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.w700),
-                ),
-                SizedBox(height: 20),
-                TextFormField(
-                  controller: _emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Email',
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const SizedBox(height: 50),
+              Stack(
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.grey.shade300,
+                    child: Icon(Icons.person, size: 60, color: Color.fromARGB(255, 244, 242, 242)),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Password',
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: CircleAvatar(
+                      radius: 20,
+                      backgroundColor: Colors.yellow,
+                      child: Icon(Icons.camera_alt, size: 20, color: Colors.black),
+                    ),
                   ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your password';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _firstNameController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'First Name',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your first name';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _lastNameController,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Last Name',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your last name';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                TextFormField(
-                  controller: _phoneNumberController,
-                  keyboardType: TextInputType.phone,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    labelText: 'Phone Number',
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter your phone number';
-                    }
-                    return null;
-                  },
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Genre',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Row(
+                ],
+              ),
+              const SizedBox(height: 20),
+              Form(
+                key: _formKey,
+                child: Column(
                   children: [
-                    Radio<String>(
-                      value: 'Homme',
-                      groupValue: _gender,
-                      onChanged: (value) {
-                        setState(() {
-                          _gender = value!;
-                        });
-                      },
-                    ),
-                    Text('Homme'),
-                    Radio<String>(
-                      value: 'Femme',
-                      groupValue: _gender,
-                      onChanged: (value) {
-                        setState(() {
-                          _gender = value!;
-                        });
-                      },
-                    ),
-                    Text('Femme'),
+                    _buildTextField(_firstNameController, "Nom et Prénom", Icons.person),
+                    const SizedBox(height: 10),
+                    _buildTextField(_addressController, "Adresse", Icons.location_on),
+                    const SizedBox(height: 10),
+                    _buildTextField(_emailController, "E-mail", Icons.email),
+                    const SizedBox(height: 10),
+                    _buildTextField(_passwordController, "Mot de passe", Icons.lock, obscureText: true),
+                    const SizedBox(height: 10),
+                    _buildTextField(_statusController, "Statut (Homme ou Femme)", Icons.person_2_sharp),
                   ],
                 ),
-                SizedBox(height: 10),
-                Text(
-                  'Smoker ? ',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Row(
-                  children: [
-                    Radio<String>(
-                      value: 'Oui',
-                      groupValue: _smoker,
-                      onChanged: (value) {
-                        setState(() {
-                          _smoker = value!;
-                        });
-                      },
-                    ),
-                    Text('Oui'),
-                    Radio<String>(
-                      value: 'Non',
-                      groupValue: _smoker,
-                      onChanged: (value) {
-                        setState(() {
-                          _smoker = value!;
-                        });
-                      },
-                    ),
-                    Text('Non'),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Pets?',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Row(
-                  children: [
-                    Radio<String>(
-                      value: 'Oui',
-                      groupValue: _hasPets,
-                      onChanged: (value) {
-                        setState(() {
-                          _hasPets = value!;
-                        });
-                      },
-                    ),
-                    Text('Oui'),
-                    Radio<String>(
-                      value: 'Non',
-                      groupValue: _hasPets,
-                      onChanged: (value) {
-                        setState(() {
-                          _hasPets = value!;
-                        });
-                      },
-                    ),
-                    Text('Non'),
-                  ],
-                ),
-                SizedBox(height: 10),
-                Text(
-                  'Driver or Passenger',
-                  style: TextStyle(fontSize: 16),
-                ),
-                Row(
-                  children: [
-                    Radio<String>(
-                      value: 'Passenger',
-                      groupValue: _driverOrPassenger,
-                      onChanged: (value) {
-                        setState(() {
-                          _driverOrPassenger = value!;
-                        });
-                      },
-                    ),
-                    Text('Passenger'),
-                    Radio<String>(
-                      value: 'Driver',
-                      groupValue: _driverOrPassenger,
-                      onChanged: (value) {
-                        setState(() {
-                          _driverOrPassenger = value!;
-                        });
-                      },
-                    ),
-                    Text('Driver'),
-                  ],
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () {
-                    if (_formKey.currentState!.validate()) {
-                      _signUp().then((result) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                          content: Text(result),
-                        ));
-                        if (result == "Account Created") {
-                          print( 'result: $result');
-                          
-                          if (_driverOrPassenger == "Passenger") {
-                            Navigator.pushReplacementNamed(
-                                context, '/passager');
-                          } else if (_driverOrPassenger == "Driver") {
-                            Navigator.pushReplacementNamed(
-                                context, '/conducteur');
-                          }
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  _buildUserTypeButton("CONDUCTEUR", "Driver"),
+                  const SizedBox(width: 10),
+                  _buildUserTypeButton("PASSAGER", "Passenger"),
+                ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  if (_formKey.currentState!.validate()) {
+                    _signUp().then((result) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                        content: Text(result),
+                      ));
+                      if (result == "Account Created") {
+                        if (_userType == "Passenger") {
+                          Navigator.pushReplacementNamed(context, '/passager');
+                        } else if (_userType == "Driver") {
+                          Navigator.pushReplacementNamed(context, '/conducteur');
                         }
-                      });
-                    }
-                    print( 'userType: $_driverOrPassenger');
-                    
-                  },
-                  child: Text('Sign Up'),
+                      }
+                    });
+                  }
+                },
+                child: Text("S'inscrire"),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
-}
 
-void main() {
-  runApp(MaterialApp(
-    initialRoute: '/',
-    routes: {
-      '/': (context) => SignUpPage(),
-      // Ajoutez d'autres routes au besoin
-    },
-  ));
+  Widget _buildTextField(TextEditingController controller, String label, IconData icon, {bool obscureText = false}) {
+    return TextFormField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        prefixIcon: Icon(icon),
+        border: OutlineInputBorder(),
+      ),
+      obscureText: obscureText,
+      validator: (value) {
+        if (value == null || value.isEmpty) {
+          return 'Veuillez entrer $label';
+        }
+        return null;
+      },
+    );
+  }
+
+  Widget _buildUserTypeButton(String label, String userType) {
+    return ElevatedButton(
+      onPressed: () {
+        setState(() {
+          _userType = userType;
+        });
+      },
+      style: ElevatedButton.styleFrom(
+        foregroundColor: _userType == userType ? Colors.black : Color.fromARGB(255, 13, 1, 1), backgroundColor: _userType == userType ? Color.fromARGB(255, 105, 184, 102) : const Color.fromARGB(255, 221, 10, 10),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(30),
+        ),
+      ),
+      child: Text(label),
+    );
+  }
 }

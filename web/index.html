@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
@@ -30,21 +17,43 @@
   <link rel="icon" type="image/png" href="favicon.png"/>
   <meta name="google-signin-client_id" content="101895701888-cftqsqp2qo1otubcu690b03lgvgk8q23.apps.googleusercontent.com">
 
+  <!-- Facebook SDK -->
+  <script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '1434362587181905',
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v10.0'
+      });
+      FB.AppEvents.logPageView();   
+    };
+
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement(s); js.id = id;
+       js.src = "https://connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+     }(document, 'script', 'facebook-jssdk'));
+  </script>
+
   <title>drivetogether</title>
   <link rel="manifest" href="manifest.json">
 
   <script>
-    // The value below is injected by flutter build, do not touch.
     const serviceWorkerVersion = null;
   </script>
-  <!-- This script adds the flutter initialization JS code -->
+  <!-- Flutter initialization -->
   <script src="flutter.js" defer></script>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC-OTIP0wqfut_dspRVK-Uam_enFG6q-PE"></script>
 </head>
 <body>
+  <!-- Google Sign-In SDK -->
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
+
   <script>
     window.addEventListener('load', function(ev) {
-      // Download main.dart.js
       _flutter.loader.loadEntrypoint({
         serviceWorker: {
           serviceWorkerVersion: serviceWorkerVersion,
@@ -57,5 +66,42 @@
       });
     });
   </script>
+
+  <script>
+    function loginWithFacebook() {
+      if (typeof FB !== 'undefined') {
+        FB.login(function(response) {
+          if (response.authResponse) {
+            console.log('Welcome!  Fetching your information.... ');
+            FB.api('/me', function(response) {
+              console.log('Good to see you, ' + response.name + '.');
+            });
+          } else {
+            console.log('User cancelled login or did not fully authorize.');
+          }
+        });
+      } else {
+        console.error('Facebook SDK not loaded yet.');
+      }
+    }
+  </script>
+
+  <!-- Your login form HTML here -->
+  <div id="login-page">
+    <h1>Login</h1>
+    <form>
+      <div>
+        <label for="email">E-mail</label>
+        <input type="email" id="email" name="email">
+      </div>
+      <div>
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password">
+      </div>
+      <button type="submit">Se connecter</button>
+    </form>
+    <button onclick="loginWithFacebook()">Facebook</button>
+    <button onclick="googleLogin()">Google</button>
+  </div>
 </body>
 </html>

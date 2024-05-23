@@ -1,3 +1,4 @@
+import 'package:drivetogether/views/Administrateur_page.dart';
 import 'package:drivetogether/views/espaceconducteur_page.dart';
 import 'package:drivetogether/views/espacepassager_page.dart';
 import 'package:drivetogether/views/home_page.dart';
@@ -40,6 +41,7 @@ class MyApp extends StatelessWidget {
         '/passager': (context) => PassengerDashboard(),
         '/conducteur': (context) => ConducteurDashboard(),
         '/profile': (context) => ProfilePage(), // Route pour la page de profil
+        '/Administrateur': (context) =>AdminPage(),
       },
     );
   }

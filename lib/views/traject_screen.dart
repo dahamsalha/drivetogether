@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
+import 'package:drivetogether/views/itineraire_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
@@ -36,9 +37,9 @@ class _trajetScreenState extends State<trajetScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
 
+  final CollectionReference trajetCollection =
+      FirebaseFirestore.instance.collection('trajet');
 
-  final CollectionReference trajetCollection = FirebaseFirestore.instance.collection('trajet');
-  
   Future<void> _enregistrerTrajet(Map<String, dynamic> data) async {
     try {
       bool allerRetour = data['aller_retour'] ?? false;
@@ -48,8 +49,6 @@ class _trajetScreenState extends State<trajetScreen>
       String heure = data['heure']?.toString() ?? '';
       String pointDepart = data['point_depart']?.toString() ?? '';
       String typeTrajet = data['type_trajet']?.toString() ?? '';
-
-      
 
       Map<String, dynamic> trajetData = {
         'aller_retour': allerRetour,
@@ -73,11 +72,13 @@ class _trajetScreenState extends State<trajetScreen>
       print("Erreur Firestore: $e");
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Une erreur s\'est produite lors de l\'enregistrement du trajet: $e'),
+          content: Text(
+              'Une erreur s\'est produite lors de l\'enregistrement du trajet: $e'),
         ),
       );
     }
   }
+
   @override
   void initState() {
     super.initState();
@@ -208,8 +209,8 @@ class _trajetScreenState extends State<trajetScreen>
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
                           _formKey.currentState!.save();
-                          await
-                              _enregistrerTrajet(_formKey.currentState!.value);
+                          await _enregistrerTrajet(
+                              _formKey.currentState!.value);
                           print(_formKey.currentState!.value);
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
@@ -222,7 +223,17 @@ class _trajetScreenState extends State<trajetScreen>
                     SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () {
-                        // Logique d'affichage de l'itinéraire
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ItineraireScreen(
+                              depart: '',
+                              arrivee: '',
+                              /* provide the departure location */
+                              /* provide the arrival location */
+                            ),
+                          ),
+                        );
                       },
                       child: Text('Voir itinéraire'),
                     ),

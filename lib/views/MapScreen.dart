@@ -14,42 +14,43 @@ class _MapScreenState extends State<MapScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('Choose Location'),
-        ),
-        body: Stack(
-          children: [
-            GoogleMap(
-              mapType: MapType.normal,
-              initialCameraPosition: CameraPosition(
-                target: _selectedLocation,
-                zoom: 10,
-              ),
-              onMapCreated: (GoogleMapController controller) {
-                _controller.complete(controller);
-              },
-              onTap: _onMapTap,
-              markers: {
-                Marker(
-                  markerId: MarkerId('selected-location'),
-                  position: _selectedLocation,
-                ),
-              },
+      appBar: AppBar(
+        title: Text('Choose Location'),
+      ),
+      body: Stack(
+        children: [
+          GoogleMap(
+            mapType: MapType.normal,
+            initialCameraPosition: CameraPosition(
+              target: _selectedLocation,
+              zoom: 10,
             ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: FloatingActionButton(
-                  onPressed: () {
-                    _confirmLocation(context);
-                  },
-                  child: Icon(Icons.check),
-                ),
+            onMapCreated: (GoogleMapController controller) {
+              _controller.complete(controller);
+            },
+            onTap: _onMapTap,
+            markers: {
+              Marker(
+                markerId: MarkerId('selected-location'),
+                position: _selectedLocation,
+              ),
+            },
+          ),
+          Align(
+            alignment: Alignment.bottomLeft,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: FloatingActionButton(
+                onPressed: () {
+                  _confirmLocation(context);
+                },
+                child: Icon(Icons.check),
               ),
             ),
-          ],
-        ));
+          ),
+        ],
+      ),
+    );
   }
 
   void _onMapTap(LatLng location) {

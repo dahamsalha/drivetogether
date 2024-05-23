@@ -1,6 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:drivetogether/views/Voiture_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'conversation_page.dart'; // Import the ConversationPage widget
+import 'preferences_page.dart'; // Import the PreferencesPage widget
+import 'avis_page.dart'; // Import the AvisPage widget
 
 class ProfilePage extends StatefulWidget {
   @override
@@ -113,65 +117,23 @@ class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStat
   }
 
   Widget _buildPreferencesTab() {
-    return Column(
-      children: [
-        ListTile(
-          leading: Icon(Icons.chat),
-          title: Text('Conversation'),
-          trailing: Icon(Icons.chevron_right),
-        ),
-        SwitchListTile(
-          secondary: Icon(Icons.pets),
-          title: Text('Animaux'),
-          value: hasPets,
-          onChanged: (value) {
-            setState(() {
-              hasPets = value;
-            });
-            updateUserPreferences();
-          },
-        ),
-        SwitchListTile(
-          secondary: Icon(Icons.music_note),
-          title: Text('Musique'),
-          value: smoker, // Utilisez la valeur appropriée pour la préférence "Musique"
-          onChanged: (value) {
-            setState(() {
-              smoker = value; // Mettez à jour la valeur appropriée pour la préférence "Musique"
-            });
-            updateUserPreferences();
-          },
-        ),
-        SwitchListTile(
-          secondary: Icon(Icons.smoking_rooms),
-          title: Text('Fumer'),
-          value: smoker,
-          onChanged: (value) {
-            setState(() {
-              smoker = value;
-            });
-            updateUserPreferences();
-          },
-        ),
-      ],
-    );
+    return PreferencesPage(); // Use the PreferencesPage widget here
   }
 
   Widget _buildRatingsTab() {
-    return Center(
-      child: Text('Onglet Avis'),
-    );
+    return AvisPage(); // Use the AvisPage widget here
   }
 
   Widget _buildConversationsTab() {
-    return Center(
-      child: Text('Onglet Conversation'),
-    );
+    return ConversationPage(); // Use the ConversationPage widget here
   }
+  
+    // Use the Voiturepage  widget here
+  
 
   Widget _buildVehiclesTab() {
-    return Center(
-      child: Text('Onglet Voitures'),
-    );
+     return VoiturePage();
+      
+    
   }
 }

@@ -34,7 +34,6 @@ dependencies:
   google_maps_flutter: ^2.6.1
   flutter_polyline_points: ^2.0.0
   url_launcher: ^6.2.6
-  #google_maps_flutter_web: ^0.5.6+2
   flutter_map: ^6.1.0
   geocoding: ^3.0.0
   cloud_firestore: ^4.17.0 
@@ -44,18 +43,9 @@ dependencies:
   image_picker: ^1.1.1
   firebase_storage: ^11.7.5
   html: ^0.15.4
- #flutter_offline: ^3.0.1
-  #flutter_screenutil: ^5.9.0
-  #font_awesome_flutter: ^10.7.0
   form_builder_validators: ^9.1.0
-
- 
-  
-
-
-
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
+  flutter_google_maps_webservices: ^1.1.1
+  intl: ^0.18.1
   cupertino_icons: ^1.0.6
   firebase_core: ^2.30.0
   google_fonts: ^6.2.1
@@ -64,8 +54,9 @@ dependencies:
   flutter_facebook_auth: ^6.2.0
   flutter_form_builder: ^9.2.1
   http: ^1.2.1
+  google_sign_in_web: ^0.12.4
+  flutter_rating_bar: ^4.0.1
 
-  
 
 dev_dependencies:
   flutter_test:
@@ -97,6 +88,11 @@ flutter:
     - assets/images/drivetogether1.jpg
     - assets/images/default-avatar.jpeg
     - assets/images/photos.jpeg
+    - assets/images/ligne-de-depart.png
+    - assets/images/ligne-darrivee.png
+    - assets/images/background.jpg
+    - assets/images/background1.jpg
+    - assets/images/background2.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

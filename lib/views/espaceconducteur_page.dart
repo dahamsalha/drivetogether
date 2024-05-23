@@ -4,9 +4,7 @@ import 'package:drivetogether/controllers/trajetService.dart';
 import 'package:drivetogether/views/chat_page.dart';
 import 'package:drivetogether/views/proposertrajet-page.dart';
 import 'package:drivetogether/views/traject_screen.dart';
-import 'package:drivetogether/views/trajet-page.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as fStorage;
 import 'package:image_picker/image_picker.dart';
 
@@ -75,7 +73,6 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
     );
   }
 
-
   ImageProvider<Object>? _getImageProvider() {
     if (_imageFile != null) {
       return FileImage(_imageFile!);
@@ -141,130 +138,172 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              color: Colors.blue,
+      body: Stack(
+        children: [
+          // Image de fond
+          Positioned.fill(
+            child: Image.asset(
+              'assets/images/background.jpg',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // Contenu de la page
+          SingleChildScrollView(
+            child: Container(
+              color: Colors.black.withOpacity(0.5), // Semi-transparent
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () =>_showImageSource(context),
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: _getImageProvider(),
+                  GestureDetector(
+                    onTap: () => _showImageSource(context),
+                    child: Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: _getImageProvider()!,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                      SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            '${_authService.userName ?? ''} ${_authService.userLastName ?? ''}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
-                          Text(
-                            FirebaseAuth.instance.currentUser!.email ?? '',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${_authService.userName ?? ''} ${_authService.userLastName ?? ''}',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        'Je suis un conducteur',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
                   SizedBox(height: 16),
-                  // Dans votre écran d'accueil ou tout autre widget
+                  ElevatedButton(
+                    onPressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return trajetScreen();
+                        },
+                      );
+                    },
+                    child: Text('Proposer un trajet'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue, // Couleur du bouton
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Coins arrondis
+                      ),
+                      elevation: 5, // Ombre
+                    ),
+                  ),
+                  SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
                       Navigator.pushNamed(context, '/profile');
                     },
                     child: Text('Voir mon profil'),
                   ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return FutureBuilder(
+                            future: _trajetService.getAllTrajets(),
+                            builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+                              if (snapshot.connectionState == ConnectionState.waiting) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+                              if (snapshot.hasError) {
+                                return Center(
+                                  child: Text(
+                                      'Une erreur s\'est produite: ${snapshot.error}'),
+                                );
+                              }
+                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                                return Center(
+                                  child: Text('Aucun trajet trouvé.'),
+                                );
+                              }
+                              return ListView.builder(
+                                shrinkWrap: true,
+                                itemCount: snapshot.data!.length,
+                                itemBuilder: (context, index) {
+                                  var trajet = snapshot.data![index];
+                                  return ListTile(
+                                    title: Text('Départ: ${trajet['Depart']}'),
+                                    subtitle: Text('Arrivée: ${trajet['Arrivee']}'),
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ProposerTrajetPage(),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                },
+                              );
+                            },
+                          );
+                        },
+                      );
+                    },
+                    child: Text('Voir tous les trajets'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green, // Couleur du bouton
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Coins arrondis
+                      ),
+                      elevation: 5, // Ombre
+                    ),
+                  ),
                 ],
               ),
             ),
-            Divider(
-              height: 24,
-              thickness: 2,
-              color: Colors.grey,
-            ),
-            ElevatedButton(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return trajetScreen();
-                  },
-                );
-              },
-              child: Text('Proposer un trajet'),
-            ),
-            SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return FutureBuilder(
-                      future: _trajetService.getAllTrajets(),
-                      builder: (context,
-                          AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        if (snapshot.hasError) {
-                          return Center(
-                            child: Text(
-                                'Une erreur s\'est produite: ${snapshot.error}'),
-                          );
-                        }
-                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return Center(
-                            child: Text('Aucun trajet trouvé.'),
-                          );
-                        }
-                        return ListView.builder(
-                          shrinkWrap: true,
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (context, index) {
-                            var trajet = snapshot.data![index];
-                            return ListTile(
-                              title: Text('Départ: ${trajet['Depart']}'),
-                              subtitle: Text('Arrivée: ${trajet['Arrivee']}'),
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        TrajetDetails(trajet: trajet),
-                                  ),
-                                );
-                              },
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-              child: Text('Voir tous les trajets'),
-            ),
-          ],
-        ),
+          ),
+        ],
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        items: [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accueil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.settings),
+            label: 'Paramètres',
+          ),
+        ],
+        onTap: (index) {
+          // Gérer la navigation vers différentes sections
+          if (index == 0) {
+            Navigator.pushNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushNamed(context, '/profile');
+          } else if (index == 2) {
+            Navigator.pushNamed(context, '/settings');
+          }
+        },
       ),
     );
   }
