@@ -1,4 +1,5 @@
 import 'package:drivetogether/views/MapScreen.dart';
+import 'package:drivetogether/views/Resultattrajetrecherche_page.dart';
 import 'package:drivetogether/views/espacepassager_page.dart';
 import 'package:flutter/material.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
@@ -20,8 +21,7 @@ class _ChercherTrajetPageState extends State<ChercherTrajetPage> {
 
   String _departurePlaceName = 'Select departure location';
   String _arrivalPlaceName = 'Select arrival location';
-
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +39,8 @@ class _ChercherTrajetPageState extends State<ChercherTrajetPage> {
               onPressed: _search,
               child: Text('Rechercher'),
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.blueGrey, // foreground
+                foregroundColor: Colors.white,
+                backgroundColor: Colors.blueGrey,
               ),
             ),
           ],
@@ -146,7 +147,7 @@ class _ChercherTrajetPageState extends State<ChercherTrajetPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TrajetSearchResults(searchResults: searchResults),
+        builder: (context) => TrajetSearchResults(),
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
+import 'package:drivetogether/views/background_container.dart';
 import 'package:drivetogether/views/itineraire_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -122,7 +123,8 @@ class _trajetScreenState extends State<trajetScreen>
           ],
         ),
       ),
-      body: TabBarView(
+      body: BackgroundContainer( // Utilisez le widget personnalisé ici
+        child:TabBarView(
         controller: _tabController,
         children: [
           Padding(
@@ -243,6 +245,7 @@ class _trajetScreenState extends State<trajetScreen>
             ),
           ),
         ],
+      ),
       ),
     );
   }

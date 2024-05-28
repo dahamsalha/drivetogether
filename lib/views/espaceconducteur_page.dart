@@ -3,10 +3,11 @@ import 'package:drivetogether/controllers/auth_service.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
 import 'package:drivetogether/views/chat_page.dart';
 import 'package:drivetogether/views/proposertrajet-page.dart';
-import 'package:drivetogether/views/traject_screen.dart';
+import 'package:drivetogether/views/trajet-page.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_storage/firebase_storage.dart' as fStorage;
 import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart' as fStorage;
+
 
 class ConducteurDashboard extends StatefulWidget {
   @override
@@ -18,6 +19,7 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
   final TrajetService _trajetService = TrajetService();
   File? _imageFile;
   final _picker = ImagePicker();
+  List<Trajet> _trajets = [];
 
   @override
   void initState() {
@@ -78,7 +80,7 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
       return FileImage(_imageFile!);
     } else {
       // Image par défaut si aucune image n'est sélectionnée
-      return AssetImage('assets/images/default-avatar.jpeg');
+      return AssetImage('assets/images/photos5.jpg');
     }
   }
 
@@ -115,6 +117,12 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
     }
   }
 
+  void _addTrajet(Trajet trajet) {
+    setState(() {
+      _trajets.add(trajet);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -143,14 +151,14 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
           // Image de fond
           Positioned.fill(
             child: Image.asset(
-              'assets/images/background.jpg',
+              'assets/images/photos4.jpg',
               fit: BoxFit.cover,
             ),
           ),
           // Contenu de la page
           SingleChildScrollView(
             child: Container(
-              color: Colors.black.withOpacity(0.5), // Semi-transparent
+              color: Color.fromARGB(255, 203, 186, 186).withOpacity(0.5), // Semi-transparent
               padding: EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -177,35 +185,16 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                          color: const Color.fromARGB(255, 12, 12, 12),
                         ),
                       ),
                       Text(
                         'Je suis un conducteur',
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Color.fromARGB(255, 10, 9, 9),
                         ),
                       ),
                     ],
-                  ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return trajetScreen();
-                        },
-                      );
-                    },
-                    child: Text('Proposer un trajet'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue, // Couleur du bouton
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10), // Coins arrondis
-                      ),
-                      elevation: 5, // Ombre
-                    ),
                   ),
                   SizedBox(height: 16),
                   ElevatedButton(
@@ -217,56 +206,100 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
                   SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: () {
-                      showModalBottomSheet(
+                      showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return FutureBuilder(
-                            future: _trajetService.getAllTrajets(),
-                            builder: (context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
-                              if (snapshot.connectionState == ConnectionState.waiting) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-                              if (snapshot.hasError) {
-                                return Center(
-                                  child: Text(
-                                      'Une erreur s\'est produite: ${snapshot.error}'),
-                                );
-                              }
-                              if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                                return Center(
-                                  child: Text('Aucun trajet trouvé.'),
-                                );
-                              }
-                              return ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: snapshot.data!.length,
-                                itemBuilder: (context, index) {
-                                  var trajet = snapshot.data![index];
-                                  return ListTile(
-                                    title: Text('Départ: ${trajet['Depart']}'),
-                                    subtitle: Text('Arrivée: ${trajet['Arrivee']}'),
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              ProposerTrajetPage(),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                },
-                              );
-                            },
-                          );
+                          return ProposerTrajetPage();
                         },
+                      );
+                    },
+                    child: Text('Proposer un trajet'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 225, 227, 229), // Couleur du bouton
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Coins arrondis
+                      ),
+                      elevation: 5, // Ombre
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProposerTrajetPage(), // Changer ici pour naviguer vers ProposerTrajetPage
+                        ),
                       );
                     },
                     child: Text('Voir tous les trajets'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green, // Couleur du bouton
+                      backgroundColor: const Color.fromARGB(255, 225, 227, 229), // Couleur du bouton
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Coins arrondis
+                      ),
+                      elevation: 5, // Ombre
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProposerTrajetPage(), // Changer ici pour naviguer vers ProposerTrajetPage
+                        ),
+                      );
+                    },
+                    child: Text('Voir tous les trajets'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 225, 227, 229), // Couleur du bouton
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Coins arrondis
+                      ),
+                      elevation: 5, // Ombre
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Logique de confirmation de la réservation du passager
+                      // Par exemple, envoyer une notification ou mettre à jour l'état de la réservation dans la base de données
+
+                      // Afficher une réponse visuelle à l'utilisateur
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Confirmation de la réservation du passager.'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    child: Text('Confirmer la réservation'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 233, 236, 233), // Couleur du bouton
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10), // Coins arrondis
+                      ),
+                      elevation: 5, // Ombre
+                    ),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Logique de confirmation du paiement
+                      // Par exemple, traiter le paiement ou mettre à jour l'état du paiement dans la base de données
+
+                      // Afficher une réponse visuelle à l'utilisateur
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Paiement confirmé.'),
+                          backgroundColor: Colors.green,
+                        ),
+                      );
+                    },
+                    child: Text('Confirmer le paiement'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color.fromARGB(255, 233, 236, 233), // Couleur du bouton
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10), // Coins arrondis
                       ),
@@ -283,7 +316,7 @@ class _ConducteurDashboardState extends State<ConducteurDashboard> {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Accueil',
+            label: 'Home',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

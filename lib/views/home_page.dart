@@ -1,3 +1,4 @@
+import 'package:drivetogether/views/background_container.dart';
 import 'package:flutter/material.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,7 +12,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Stack(
+      body:
+         Stack(
         fit: StackFit.expand, // Make the stack fill the entire screen
         children: [
           
@@ -61,7 +63,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ],
-      ),
+      
+      )
     );
   }
 }

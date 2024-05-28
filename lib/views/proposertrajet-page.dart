@@ -1,7 +1,9 @@
+import 'package:drivetogether/views/espaceconducteur_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'background_container.dart'; // Importez le widget BackgroundContainer
 
 class ProposerTrajetPage extends StatefulWidget {
   @override
@@ -45,140 +47,186 @@ class _ProposerTrajetPageState extends State<ProposerTrajetPage> {
         title: Text("Proposer trajet"),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: FormBuilder(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FormBuilderTextField(
-                  name: 'point_depart',
-                  decoration: InputDecoration(
-                    labelText: 'Sélectionnez un point de départ',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Ce champ est obligatoire'),
-                ),
-                SizedBox(height: 16),
-                FormBuilderTextField(
-                  name: 'destination',
-                  decoration: InputDecoration(
-                    labelText: 'Destination',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Ce champ est obligatoire'),
-                ),
-                SizedBox(height: 16),
-                FormBuilderChoiceChip<String>(
-                  name: 'type_trajet',
-                  decoration: InputDecoration(
-                    labelText: 'Type de trajet',
-                  ),
-                  options: const [
-                    FormBuilderChipOption(
-                      value: 'regulier',
-                      child: Text('Trajet régulier'),
+      body: BackgroundContainer(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: FormBuilder(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  FormBuilderTextField(
+                    name: 'point_depart',
+                    decoration: InputDecoration(
+                      labelText: 'Sélectionnez un point de départ',
+                      border: OutlineInputBorder(),
                     ),
-                    FormBuilderChipOption(
-                      value: 'simple',
-                      child: Text('Trajet Simple'),
+                    validator: FormBuilderValidators.required(
+                        errorText: 'Ce champ est obligatoire'),
+                  ),
+                  SizedBox(height: 16),
+                  FormBuilderTextField(
+                    name: 'destination',
+                    decoration: InputDecoration(
+                      labelText: 'Destination',
+                      border: OutlineInputBorder(),
                     ),
-                  ],
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Ce champ est obligatoire'),
-                ),
-                SizedBox(height: 16),
-                FormBuilderDateTimePicker(
-                  name: 'date',
-                  inputType: InputType.date,
-                  decoration: InputDecoration(
-                    labelText: 'Sélectionnez la date',
-                    border: OutlineInputBorder(),
+                    validator: FormBuilderValidators.required(
+                        errorText: 'Ce champ est obligatoire'),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Ce champ est obligatoire'),
-                ),
-                SizedBox(height: 16),
-                FormBuilderDateTimePicker(
-                  name: 'heure',
-                  inputType: InputType.time,
-                  decoration: InputDecoration(
-                    labelText: 'Sélectionnez l\'heure',
-                    border: OutlineInputBorder(),
+                  SizedBox(height: 16),
+                  FormBuilderChoiceChip<String>(
+                    name: 'type_trajet',
+                    decoration: InputDecoration(
+                      labelText: 'Type de trajet',
+                    ),
+                    options: const [
+                      FormBuilderChipOption(
+                        value: 'regulier',
+                        child: Text('Trajet régulier'),
+                      ),
+                      FormBuilderChipOption(
+                        value: 'simple',
+                        child: Text('Trajet Simple'),
+                      ),
+                    ],
+                    validator: FormBuilderValidators.required(
+                        errorText: 'Ce champ est obligatoire'),
                   ),
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Ce champ est obligatoire'),
-                ),
-                SizedBox(height: 16),
-                FormBuilderCheckbox(
-                  name: 'aller_retour',
-                  initialValue: false,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _allerRetour = value!;
-                    });
-                  },
-                  title: Text('Aller retour'),
-                ),
-                SizedBox(height: 16),
-                FormBuilderTextField(
-                  name: 'nb_places',
-                  decoration: InputDecoration(
-                    labelText: 'Nombre de places',
-                    border: OutlineInputBorder(),
+                  SizedBox(height: 16),
+                  FormBuilderDateTimePicker(
+                    name: 'date',
+                    inputType: InputType.date,
+                    decoration: InputDecoration(
+                      labelText: 'Sélectionnez la date',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: FormBuilderValidators.required(
+                        errorText: 'Ce champ est obligatoire'),
                   ),
-                  keyboardType: TextInputType.number,
-                  validator: FormBuilderValidators.required(
-                      errorText: 'Ce champ est obligatoire'),
-                ),
-                SizedBox(height: 16),
-                Text('Cotisation : ${_cotisation.toStringAsFixed(2)}DT'),
-                Slider(
-                  min: 0,
-                  max: 30,
-                  divisions: 30,
-                  value: _cotisation,
-                  onChanged: (double value) {
-                    setState(() {
-                      _cotisation = value;
-                    });
-                  },
-                ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      _formKey.currentState?.save();
-                      final formData = _formKey.currentState?.value ?? {};
-                      formData['cotisation'] = _cotisation;
-                      formData['aller_retour'] = _allerRetour;
-                      await _enregistrerTrajet(formData);
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('Veuillez remplir tous les champs obligatoires'),
+                  SizedBox(height: 16),
+                  FormBuilderDateTimePicker(
+                    name: 'heure',
+                    inputType: InputType.time,
+                    decoration: InputDecoration(
+                      labelText: 'Sélectionnez l\'heure',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: FormBuilderValidators.required(
+                        errorText: 'Ce champ est obligatoire'),
+                  ),
+                  SizedBox(height: 16),
+                  FormBuilderCheckbox(
+                    name: 'aller_retour',
+                    initialValue: false,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _allerRetour = value!;
+                      });
+                    },
+                    title: Text('Aller retour'),
+                  ),
+                  SizedBox(height: 16),
+                  FormBuilderTextField(
+                    name: 'nb_places',
+                    decoration: InputDecoration(
+                      labelText: 'Nombre de places',
+                      border: OutlineInputBorder(),
+                    ),
+                    keyboardType: TextInputType.number,
+                    validator: FormBuilderValidators.required(
+                        errorText: 'Ce champ est obligatoire'),
+                  ),
+                  SizedBox(height: 16),
+                  Text('Cotisation : ${_cotisation.toStringAsFixed(2)}DT'),
+                  Slider(
+                    min: 0,
+                    max: 30,
+                    divisions: 30,
+                    value: _cotisation,
+                    onChanged: (double value) {
+                      setState(() {
+                        _cotisation = value;
+                      });
+                    },
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      if (_formKey.currentState?.validate() ?? false) {
+                        _formKey.currentState?.save();
+                        final formData = _formKey.currentState?.value ?? {};
+                        formData['cotisation'] = _cotisation;
+                        formData['aller_retour'] = _allerRetour;
+                        await _enregistrerTrajet(formData);
+                      } else {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text('Veuillez remplir tous les champs obligatoires'),
+                          ),
+                        );
+                      }
+                    },
+                    child: Text('Proposer'),
+                  ),
+                  SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => TrajetListPage(),
                         ),
                       );
-                    }
-                  },
-                  child: Text('Proposer'),
-                ),
-                SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () {
-                    // Logique d'affichage de l'itinéraire
-                  },
-                  child: Text('Voir itinéraire'),
-                ),
-              ],
+                    },
+                    child: Text('Voir itinéraire'),
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
     );
   }
+}
+
+class TrajetListPage extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Tous les trajets'),
+      ),
+      body: StreamBuilder<QuerySnapshot>(
+        stream: FirebaseFirestore.instance.collection('trajet').snapshots(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Center(child: CircularProgressIndicator());
+          }
+
+          var trajets = snapshot.data!.docs;
+
+          return ListView.builder(
+            itemCount: trajets.length,
+            itemBuilder: (context, index) {
+              var trajet = trajets[index];
+
+              return ListTile(
+                title: Text('${trajet['point_depart']} - ${trajet['destination']}'),
+                subtitle: Text('${trajet['date']} à ${trajet['heure']}'),
+              );
+            },
+          );
+        },
+      ),
+    );
+  }
+}
+
+void main() {
+  runApp(MaterialApp(
+    home: ConducteurDashboard(),
+  ));
 }

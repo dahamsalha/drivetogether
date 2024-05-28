@@ -21,7 +21,7 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.3.3 <4.0.0'
 
-# Dependencies specify other packages that your package needs in order to work.
+# Dependencies specify other packages that your pacfkage needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
 # dependencies can be manually updated by changing the version numbers below to
@@ -30,11 +30,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  geolocator: ^11.0.0
+  geolocator: ^12.0.0
   google_maps_flutter: ^2.6.1
   flutter_polyline_points: ^2.0.0
   url_launcher: ^6.2.6
-  flutter_map: ^6.1.0
+  flutter_map: ^7.0.0
   geocoding: ^3.0.0
   cloud_firestore: ^4.17.0 
   flutter_dotenv: ^5.1.0
@@ -43,19 +43,21 @@ dependencies:
   image_picker: ^1.1.1
   firebase_storage: ^11.7.5
   html: ^0.15.4
-  form_builder_validators: ^9.1.0
+  form_builder_validators: ^10.0.0
   flutter_google_maps_webservices: ^1.1.1
-  intl: ^0.18.1
+  intl: ^0.19.0
   cupertino_icons: ^1.0.6
   firebase_core: ^2.30.0
   google_fonts: ^6.2.1
   google_sign_in: ^6.2.1
   firebase_auth: ^4.19.2
-  flutter_facebook_auth: ^6.2.0
+  flutter_facebook_auth: ^7.0.0
   flutter_form_builder: ^9.2.1
   http: ^1.2.1
   google_sign_in_web: ^0.12.4
   flutter_rating_bar: ^4.0.1
+  #flutter_charts: ^0.5.2
+  flutter_localization:
 
 
 dev_dependencies:
@@ -67,7 +69,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^3.0.0
+  flutter_lints: ^4.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -93,6 +95,18 @@ flutter:
     - assets/images/background.jpg
     - assets/images/background1.jpg
     - assets/images/background2.jpg
+    - assets/images/driver.jpg
+    - assets/images/jaune.jpg
+    - assets/images/jaune1.jpg
+    - assets/images/photos1.jpg
+    - assets/images/photos2.jpg
+    - assets/images/photos3.jpg
+    - assets/images/photos4.jpg
+    - assets/images/photos5.jpg
+    - assets/images/photos6.jpg
+  
+    
+
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

@@ -1,8 +1,14 @@
 import 'dart:io';
 import 'package:drivetogether/controllers/auth_service.dart';
 import 'package:drivetogether/controllers/trajetService.dart';
+import 'package:drivetogether/views/Administrateur_page.dart';
+import 'package:drivetogether/views/Resultattrajetrecherche_page.dart';
 import 'package:drivetogether/views/chat_page.dart';
 import 'package:drivetogether/views/cherchertrajet_page.dart';
+import 'package:drivetogether/views/espaceconducteur_page.dart';
+import 'package:drivetogether/views/motdepasseoublie_page.dart';
+import 'package:drivetogether/views/payment_page.dart'; // Import de la page de paiement
+import 'package:drivetogether/views/signup_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart' as fStorage;
@@ -55,7 +61,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
         children: [
           ListTile(
             leading: Icon(Icons.photo_library),
-            title: Text('Gallery'),
+            title: Text('Galerie'),
             onTap: () {
               Navigator.of(context).pop();
               _pickImageFromGallery();
@@ -63,7 +69,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
           ),
           ListTile(
             leading: Icon(Icons.camera_alt),
-            title: Text('Camera'),
+            title: Text('Caméra'),
             onTap: () {
               Navigator.of(context).pop();
               _pickImageFromCamera();
@@ -78,7 +84,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
     if (_imageFile != null) {
       return FileImage(_imageFile!);
     } else {
-      return AssetImage('assets/images/photo_library');
+      return AssetImage('assets/images/photos.jpeg'); // Mettez ici l'image par défaut
     }
   }
 
@@ -124,7 +130,7 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => TrajetSearchResults(searchResults: searchResults),
+        builder: (context) => TrajetSearchResults(),
       ),
     );
   }
@@ -148,107 +154,138 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Passager'),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.notifications),
-            onPressed: () {
-              // Logique des notifications
-            },
+    return Stack(
+      children: [
+        // Image de fond
+        Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/photos3.jpg'), // Chemin de votre image de fond
+              fit: BoxFit.cover, // Ajuste l'image pour couvrir toute la surface
+            ),
           ),
-          IconButton(
-            icon: Icon(Icons.chat),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => ChatPage()),
-              );
-            },
+        ),
+        // Contenu de la page
+        Scaffold(
+          backgroundColor: Colors.transparent, // Rend le fond du Scaffold transparent
+          appBar: AppBar(
+            title: Row(
+              children: [
+                Opacity(
+                  opacity: 0.9, // Définit la transparence à 50%
+                  child: Image.asset(
+                    'assets/images/drivetogether1.jpg', // Chemin de votre logo
+                    height: 40,
+                  ),
+                ),
+                SizedBox(width: 20),
+                Text('Passager'),
+              ],
+            ),
+            actions: [
+              IconButton(
+                icon: Icon(Icons.notifications),
+                onPressed: () {
+                  // Logique des notifications
+                },
+              ),
+              IconButton(
+                icon: Icon(Icons.chat),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => ChatPage()),
+                  );
+                },
+              ),
+            ],
+            backgroundColor: Color.fromARGB(255, 230, 232, 233),
           ),
-        ],
-        backgroundColor: Colors.blueGrey,
-      ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              color: Colors.blue,
-              padding: EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => _showImageSource(context),
-                        child: CircleAvatar(
-                          radius: 50,
-                          backgroundImage: _getImageProvider(),
-                        ),
+          body: SingleChildScrollView(
+            padding: EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/photos6.jpg'), // Chemin de votre nouvelle image de fond
+                      fit: BoxFit.cover, // Ajuste l'image pour couvrir toute la surface
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.grey.withOpacity(0.5),
+                        spreadRadius: 5,
+                        blurRadius: 7,
+                        offset: Offset(0, 3),
                       ),
-                      SizedBox(width: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    ],
+                  ),
+                  padding: EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
                         children: [
-                          Text(
-                            '${_authService.userName ?? ''} ${_authService.userLastName ?? ''}',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                          GestureDetector(
+                            onTap: () => _showImageSource(context),
+                            child: CircleAvatar(
+                              radius: 50,
+                              backgroundImage: _getImageProvider(),
                             ),
                           ),
-                          Text(
-                            'Je suis passager',
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
+                          SizedBox(width: 16),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${_authService.userName ?? ''} ${_authService.userLastName ?? ''}',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Text(
+                                'Je suis passager',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ],
                   ),
-                  SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.pushNamed(context, '/profile');
-                    },
-                    child: Text('Modifier le profil'),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.blue, backgroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
+                ),
+                SizedBox(height: 16),
+                buildActionButtons(),
+              ],
             ),
-            SizedBox(height: 16),
-            buildActionButtons(),
-          ],
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                label: 'Home',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.person),
+                label: 'Profile',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.settings),
+                label: 'Settings',
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.blueGrey,
+            onTap: _onItemTapped,
+          ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.blueGrey,
-        onTap: _onItemTapped,
-      ),
+      ],
     );
   }
 
@@ -256,21 +293,18 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Actions disponibles',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        SizedBox(height: 10),
+        SizedBox(height: 16),
         ElevatedButton(
-          onPressed: _search,
-          child: Text('Réserver'),
+          onPressed: () {
+            Navigator.pushNamed(context, '/profile');
+          },
+          child: Text('Modifier le profil'),
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.blueGrey,
-            padding: EdgeInsets.symmetric(vertical: 16),
-            textStyle: TextStyle(fontSize: 16),
+            foregroundColor: Colors.blue, backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 5,
           ),
         ),
         SizedBox(height: 10),
@@ -283,9 +317,40 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
           },
           child: Text('Proposer Trajet'),
           style: ElevatedButton.styleFrom(
-            foregroundColor: Colors.white, backgroundColor: Colors.blueGrey,
-            padding: EdgeInsets.symmetric(vertical: 16),
-            textStyle: TextStyle(fontSize: 16),
+            foregroundColor: Colors.blue, backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 5,
+          ),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: _search,
+          child: Text('Réserver'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.blue, backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 5,
+          ),
+        ),
+        SizedBox(height: 10),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => PaymentPage()), // Ajout de la navigation vers la page de paiement
+            );
+          },
+          child: Text('Payer'),
+          style: ElevatedButton.styleFrom(
+            foregroundColor: Colors.blue, backgroundColor: Colors.white,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+            elevation: 5,
           ),
         ),
       ],
@@ -293,70 +358,16 @@ class _PassengerDashboardState extends State<PassengerDashboard> {
   }
 }
 
-class TrajetSearchResults extends StatelessWidget {
-  final List<Map<String, dynamic>> searchResults;
-
-  TrajetSearchResults({required this.searchResults});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Résultats de la recherche'),
-        backgroundColor: const Color.fromARGB(255, 88, 148, 178),
-      ),
-      body: ListView.builder(
-        itemCount: searchResults.length,
-        itemBuilder: (context, index) {
-          var trajet = searchResults[index];
-          return ListTile(
-            title: Text('Départ: ${trajet['Depart']}'),
-            subtitle: Text('Arrivée: ${trajet['Arrivee']}'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => TrajetDetails(trajet: trajet),
-                ),
-              );
-            },
-          );
-        },
-      ),
-    );
-  }
-}
-
-class TrajetDetails extends StatelessWidget {
-  final Map<String, dynamic> trajet;
-
-  TrajetDetails({required this.trajet});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Détails du Trajet'),
-        backgroundColor: Colors.blueGrey,
-      ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Départ: ${trajet['Depart']}',
-              style: TextStyle(fontSize: 18),
-            ),
-            SizedBox(height: 10),
-            Text(
-              'Arrivée: ${trajet['Arrivee']}',
-              style: TextStyle(fontSize: 18),
-            ),
-            // Ajoutez plus de détails selon les informations de `trajet`
-          ],
-        ),
-      ),
-    );
-  }
+void main() {
+  runApp(MaterialApp(
+    home: PassengerDashboard(),
+    routes: {
+      '/signup': (context) => SignUpPage(),
+      '/passager': (context) => PassengerDashboard(),
+      '/conducteur': (context) => ConducteurDashboard(),
+      '/Administrateur': (context) => AdminPage(),
+      '/forgot_password': (context) => ForgotPasswordPage(), // Ajout de cette ligne
+      '/payment': (context) => PaymentPage(), // Ajout de cette ligne pour la page de paiement
+    },
+  ));
 }

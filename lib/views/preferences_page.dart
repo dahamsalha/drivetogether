@@ -23,7 +23,7 @@ class _PreferencesPageState extends State<PreferencesPage> {
           title: Text('Langue'),
           trailing: DropdownButton<String>(
             value: _selectedLanguage,
-            items: ['Français', 'Anglais'].map((String value) {
+            items: ['Français', 'Anglais','Arabe'].map((String value) {
               return DropdownMenuItem<String>(
                 value: value,
                 child: Text(value),

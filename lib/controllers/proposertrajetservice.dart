@@ -49,5 +49,13 @@ class ProposerTrajetService {
     return trajetCollection.doc(id).get();
   }
 
-  getAllTrajets() {}
+   Stream<QuerySnapshot> getTrajetsByUser(String userId) {
+    return trajetCollection.where('userId', isEqualTo: userId).snapshots();
+  }
+
+  Stream<QuerySnapshot> getAllTrajets() {
+    return FirebaseFirestore.instance
+        .collection('trajet') // Assuming 'trajets' is the collection where trips are stored
+        .snapshots();
+  }
 }
